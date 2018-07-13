@@ -1,6 +1,5 @@
 ﻿namespace Stumps.Server
 {
-
     using System;
     using System.Net;
 
@@ -9,28 +8,22 @@
     /// </summary>
     public sealed class RecordedRequest : RecordedContextPartBase, IStumpsHttpRequest
     {
-
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Server.RecordedRequest" /> class.
+        ///     Initializes a new instance of the <see cref="RecordedRequest" /> class.
         /// </summary>
-        /// <param name="request">The <see cref="T:Stumps.IStumpsHttpRequest"/> used to initialize the instance.</param>
-        /// <param name="decoderHandling">The <see cref="T:Stumps.Server.ContentDecoderHandling"/> requirements for the HTTP body.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="request"/> is <c>null</c>.</exception>
+        /// <param name="request">The <see cref="IStumpsHttpRequest"/> used to initialize the instance.</param>
+        /// <param name="decoderHandling">The <see cref="ContentDecoderHandling"/> requirements for the HTTP body.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="request"/> is <c>null</c>.</exception>
         public RecordedRequest(IStumpsHttpRequest request, ContentDecoderHandling decoderHandling)
             : base(request, decoderHandling)
         {
-
-            if (request == null)
-            {
-                throw new ArgumentNullException("request");
-            }
+            request = request ?? throw new ArgumentNullException(nameof(request));
 
             this.HttpMethod = request.HttpMethod;
             this.LocalEndPoint = request.LocalEndPoint ?? new IPEndPoint(0, 0);
             this.ProtocolVersion = request.ProtocolVersion;
             this.RawUrl = request.RawUrl;
             this.RemoteEndPoint = request.RemoteEndPoint ?? new IPEndPoint(0, 0);
-
         }
 
         /// <summary>
@@ -42,7 +35,6 @@
         public string HttpMethod
         {
             get;
-            private set;
         }
 
         /// <summary>
@@ -54,7 +46,6 @@
         public IPEndPoint LocalEndPoint
         {
             get;
-            private set;
         }
 
         /// <summary>
@@ -66,7 +57,6 @@
         public string ProtocolVersion
         {
             get;
-            private set;
         }
 
         /// <summary>
@@ -78,7 +68,6 @@
         public string RawUrl
         {
             get;
-            private set;
         }
 
         /// <summary>
@@ -90,9 +79,6 @@
         public IPEndPoint RemoteEndPoint
         {
             get;
-            private set;
         }
-
     }
-
 }

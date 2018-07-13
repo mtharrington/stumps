@@ -1,6 +1,5 @@
 namespace Stumps.Server
 {
-
     using System.Collections.Generic;
     using Stumps.Server.Data;
 
@@ -9,30 +8,26 @@ namespace Stumps.Server
     /// </summary>
     internal static class ContractEntityBinding
     {
-
         /// <summary>
         ///     Creates a Stump contract from a Stump data entity.
         /// </summary>
         /// <param name="serverId">The unique identifier for the server.</param>
-        /// <param name="entity">The <see cref="T:Stumps.Server.Data.StumpEntity"/> used to create the contract.</param>
+        /// <param name="entity">The <see cref="StumpEntity"/> used to create the contract.</param>
         /// <param name="dataAccess">The data access provider used by the instance.</param>
         /// <returns>
-        ///     A <see cref="T:Stumps.Server.StumpContract"/> created from the specified <paramref name="entity"/>.
+        ///     A <see cref="StumpContract"/> created from the specified <paramref name="entity"/>.
         /// </returns>
         public static StumpContract CreateContractFromEntity(string serverId, StumpEntity entity, IDataAccess dataAccess)
         {
-
             var contract = new StumpContract
             {
                 OriginalRequest = new RecordedRequest(new HttpRequestEntityReader(serverId, entity.OriginalRequest, dataAccess), ContentDecoderHandling.DecodeNotRequired),
                 OriginalResponse = new RecordedResponse(new HttpResponseEntityReader(serverId, entity.OriginalResponse, dataAccess), ContentDecoderHandling.DecodeNotRequired),
                 Response = new RecordedResponse(new HttpResponseEntityReader(serverId, entity.Response, dataAccess), ContentDecoderHandling.DecodeNotRequired),
-                ResponseDelay = entity.ResponseDelay,
                 Rules = new RuleContractCollection(),
                 StumpCategory = entity.StumpName,
                 StumpId = entity.StumpId,
                 StumpName = entity.StumpName,
-                TerminateConnection = entity.TerminateConnection
             };
 
             foreach (var ruleEntity in entity.Rules)
@@ -56,19 +51,17 @@ namespace Stumps.Server
             }
 
             return contract;
-
         }
 
         /// <summary>
         ///     Creates a Stump data entity from a Stump contract.
         /// </summary>
-        /// <param name="contract">The <see cref="T:Stumps.Server.StumpContract"/> used to create the entity.</param>
+        /// <param name="contract">The <see cref="StumpContract"/> used to create the entity.</param>
         /// <returns>
-        ///     A <see cref="T:Stumps.Server.Data.StumpEntity"/> created from the specified <paramref name="contract"/>.
+        ///     A <see cref="StumpEntity"/> created from the specified <paramref name="contract"/>.
         /// </returns>
         public static StumpEntity CreateEntityFromContract(StumpContract contract)
         {
-
             var originalRequest = new HttpRequestEntity
             {
                 BodyResourceName = string.Empty,
@@ -85,8 +78,10 @@ namespace Stumps.Server
                 BodyResourceName = string.Empty,
                 Headers = CreateNameValuePairFromHeaders(contract.OriginalResponse.Headers),
                 RedirectAddress = contract.OriginalResponse.RedirectAddress,
+                ResponseDelay = contract.OriginalResponse.ResponseDelay,
                 StatusCode = contract.OriginalResponse.StatusCode,
-                StatusDescription = contract.OriginalResponse.StatusDescription
+                StatusDescription = contract.OriginalResponse.StatusDescription,
+                TerminateConnection = contract.OriginalResponse.TerminateConnection
             };
 
             var response = new HttpResponseEntity
@@ -94,8 +89,10 @@ namespace Stumps.Server
                 BodyResourceName = string.Empty,
                 Headers = CreateNameValuePairFromHeaders(contract.Response.Headers),
                 RedirectAddress = contract.Response.RedirectAddress,
+                ResponseDelay = contract.Response.ResponseDelay,
                 StatusCode = contract.Response.StatusCode,
-                StatusDescription = contract.Response.StatusDescription
+                StatusDescription = contract.Response.StatusDescription,
+                TerminateConnection = contract.Response.TerminateConnection
             };
 
             var entity = new StumpEntity
@@ -103,12 +100,10 @@ namespace Stumps.Server
                 OriginalRequest = originalRequest,
                 OriginalResponse = originalResponse,
                 Response = response,
-                ResponseDelay = contract.ResponseDelay,
                 Rules = new List<RuleEntity>(),
                 StumpCategory = contract.StumpCategory,
                 StumpId = contract.StumpId,
                 StumpName = contract.StumpName,
-                TerminateConnection = contract.TerminateConnection
             };
 
             foreach (var rule in contract.Rules)
@@ -131,21 +126,18 @@ namespace Stumps.Server
                 }
 
                 entity.Rules.Add(ruleEntity);
-
             }
 
             return entity;
-
         }
 
         /// <summary>
-        ///     Creates a list of <see cref="T:Stumps.Server.Data.NameValuePairEntity"/> objects a <see cref="T:Stumps.IHttpHeaders"/> object.
+        ///     Creates a list of <see cref="NameValuePairEntity"/> objects a <see cref="IHttpHeaders"/> object.
         /// </summary>
         /// <param name="headers">The headers.</param>
-        /// <returns>A list of <see cref="T:Stumps.Server.Data.NameValuePairEntity"/> objects.</returns>
+        /// <returns>A list of <see cref="NameValuePairEntity"/> objects.</returns>
         private static List<NameValuePairEntity> CreateNameValuePairFromHeaders(IHttpHeaders headers)
         {
-
             var pairs = new List<NameValuePairEntity>();
 
             foreach (var headerName in headers.HeaderNames)
@@ -159,9 +151,6 @@ namespace Stumps.Server
             }
 
             return pairs;
-
         }
-
     }
-
 }

@@ -1,24 +1,22 @@
 ﻿namespace Stumps.Http
 {
-
-    using System.Globalization;
+    using System;
     using System.Net;
+    using System.Threading.Tasks;
 
     /// <summary>
-    ///     A class that represents an incomming HTTP request.
+    ///     A class that represents an incoming HTTP request.
     /// </summary>
     internal sealed class StumpsHttpRequest : IStumpsHttpRequest
     {
-
         private byte[] _bodyBuffer;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Http.StumpsHttpRequest"/> class.
+        ///     Initializes a new instance of the <see cref="StumpsHttpRequest"/> class.
         /// </summary>
         public StumpsHttpRequest()
         {
             _bodyBuffer = new byte[0];
-            this.Headers = new ReadOnlyHttpHeaders();
         }
 
         /// <summary>
@@ -29,7 +27,7 @@
         /// </value>
         public int BodyLength
         {
-            get { return _bodyBuffer.Length; }
+            get => _bodyBuffer.Length;
         }
 
         /// <summary>
@@ -41,8 +39,7 @@
         public IHttpHeaders Headers
         {
             get;
-            private set;
-        }
+        } = new ReadOnlyHttpHeaders();
 
         /// <summary>
         ///     Gets the HTTP data transfer method used by the client.
@@ -108,30 +105,25 @@
         ///     Gets the body for the HTTP request.
         /// </summary>
         /// <returns>
-        ///     An array of <see cref="T:System.Byte"/> values representing the HTTP body.
+        ///     An array of <see cref="Byte"/> values representing the HTTP body.
         /// </returns>
-        public byte[] GetBody()
-        {
-            return _bodyBuffer;
-        }
+        public byte[] GetBody() => _bodyBuffer;
 
         /// <summary>
-        ///     Initializes the instance using the specified <see cref="T:System.Net.HttpListenerRequest"/>.
+        ///     Initializes the instance using the specified <see cref="HttpListenerRequest"/>.
         /// </summary>
-        /// <param name="request">The <see cref="T:System.Net.HttpListenerRequest"/> used to initilize the instance.</param>
-        public void InitializeInstance(HttpListenerRequest request)
+        /// <param name="request">The <see cref="HttpListenerRequest"/> used to initilize the instance.</param>
+        public async Task InitializeInstance(HttpListenerRequest request)
         {
-
             // Setup the standard values
             this.HttpMethod = request.HttpMethod;
             this.LocalEndPoint = request.LocalEndPoint;
-            this.ProtocolVersion = string.Format(
-                CultureInfo.InvariantCulture, "{0}.{1}", request.ProtocolVersion.Major, request.ProtocolVersion.Minor);
+            this.ProtocolVersion = $"{request.ProtocolVersion.Major}.{request.ProtocolVersion.Minor}";
             this.RawUrl = request.RawUrl;
             this.RemoteEndPoint = request.RemoteEndPoint;
 
             // Setup the body
-            _bodyBuffer = StreamUtility.ConvertStreamToByteArray(request.InputStream);
+            _bodyBuffer = await StreamUtility.ConvertStreamToByteArray(request.InputStream);
 
             // Setup the headers
             var headers = (ReadOnlyHttpHeaders)this.Headers;
@@ -140,9 +132,6 @@
             {
                 headers.AddOrUpdateInternal(key, request.Headers[key]);
             }
-
         }
-
     }
-
 }

@@ -1,6 +1,5 @@
 ﻿namespace Stumps.Server
 {
-
     using System;
 
     /// <summary>
@@ -8,21 +7,16 @@
     /// </summary>
     public sealed class RecordedResponse : RecordedContextPartBase, IStumpsHttpResponse
     {
-
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Server.RecordedResponse" /> class.
+        ///     Initializes a new instance of the <see cref="RecordedResponse" /> class.
         /// </summary>
-        /// <param name="response">The <see cref="T:Stumps.IStumpsHttpResponse" /> used to initialize the instance.</param>
-        /// <param name="decoderHandling">The <see cref="T:Stumps.Server.ContentDecoderHandling" /> requirements for the HTTP body.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="response"/> is <c>null</c>.</exception>
+        /// <param name="response">The <see cref="IStumpsHttpResponse" /> used to initialize the instance.</param>
+        /// <param name="decoderHandling">The <see cref="ContentDecoderHandling" /> requirements for the HTTP body.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="response"/> is <c>null</c>.</exception>
         public RecordedResponse(IStumpsHttpResponse response, ContentDecoderHandling decoderHandling)
             : base(response, decoderHandling)
         {
-
-            if (response == null)
-            {
-                throw new ArgumentNullException("response");
-            }
+            response = response ?? throw new ArgumentNullException(nameof(response));
 
             this.RedirectAddress = response.RedirectAddress;
             this.StatusCode = response.StatusCode;
@@ -35,8 +29,22 @@
         /// <value>
         ///     The redirect address.
         /// </value>
-        /// <exception cref="System.NotSupportedException">Thrown when altering the value of the redirect address.</exception>
         public string RedirectAddress
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        ///     Gets or sets the amount of time (in milliseconds) the response is delayed.
+        /// </summary>
+        /// <value>
+        ///     The amount of time (in milliseconds) the response is delayed.
+        /// </value>
+        /// <remarks>
+        ///     A value of <c>0</c> or less will not cause a delay.
+        /// </remarks>
+        public int ResponseDelay
         {
             get;
             set;
@@ -48,7 +56,6 @@
         /// <value>
         ///     The HTTP status code for the response.
         /// </value>
-        /// <exception cref="System.NotSupportedException">Thrown when altering the value of the status code.</exception>
         public int StatusCode
         {
             get;
@@ -61,8 +68,19 @@
         /// <value>
         ///     The description of the HTTP status code.
         /// </value>
-        /// <exception cref="System.NotSupportedException">Thrown when altering the value of the status description.</exception>
         public string StatusDescription
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        ///     Gets or sets a flag indicating whether to forceably terminate the connection.
+        /// </summary>
+        /// <value>
+        ///     <c>true</c> if the connection should be forceably terminated; otherwise, <c>false</c>.
+        /// </value>
+        public bool TerminateConnection
         {
             get;
             set;
@@ -72,28 +90,16 @@
         ///     Appends a byte array to the body of the HTTP response.
         /// </summary>
         /// <param name="buffer">The bytes to append to the body of the response.</param>
-        public new void AppendToBody(byte[] buffer)
-        {
-            base.AppendToBody(buffer);
-        }
+        public new void AppendToBody(byte[] buffer) => base.AppendToBody(buffer);
 
         /// <summary>
         ///     Clears the existing body of the HTTP response.
         /// </summary>
-        /// <exception cref="System.NotSupportedException">Always thrown.</exception>
-        public new void ClearBody()
-        {
-            base.ClearBody();
-        }
+        public new void ClearBody() => base.ClearBody();
 
         /// <summary>
         ///     Examines the body for the classification, and the MD5 hash.
         /// </summary>
-        public new void ExamineBody()
-        {
-            base.ExamineBody();
-        }
-
+        public new void ExamineBody() => base.ExamineBody();
     }
-
 }

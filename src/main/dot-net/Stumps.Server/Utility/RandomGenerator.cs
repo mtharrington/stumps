@@ -1,6 +1,6 @@
 ﻿namespace Stumps.Server.Utility
 {
-
+    using System;
     using System.Security.Cryptography;
     using System.Text;
 
@@ -9,7 +9,6 @@
     /// </summary>
     internal static class RandomGenerator
     {
-
         /// <summary>
         ///     The default key size used by the random generator.
         /// </summary>
@@ -25,16 +24,14 @@
         /// Generates a new unique identifier.
         /// </summary>
         /// <returns>
-        ///     A <see cref="T:System.String"/> containing a identifier.
+        ///     A <see cref="String"/> containing a identifier.
         /// </returns>
         public static string GenerateIdentifier()
         {
-
             string identifier;
 
             using (var cryptoProvider = new RNGCryptoServiceProvider())
             {
-
                 var data = new byte[RandomGenerator.KeySize];
                 cryptoProvider.GetNonZeroBytes(data);
 
@@ -45,13 +42,9 @@
                 }
 
                 identifier = sb.ToString();
-
             }
 
             return identifier;
-
         }
-
     }
-
 }

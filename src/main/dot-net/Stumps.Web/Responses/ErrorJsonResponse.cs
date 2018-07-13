@@ -1,6 +1,5 @@
 ﻿namespace Stumps.Web.Responses
 {
-
     using System;
     using Nancy;
     using Nancy.Responses;
@@ -11,24 +10,16 @@
     /// </summary>
     public class ErrorJsonResponse : JsonResponse
     {
-
         private readonly ErrorModel _errorModel;
 
         /// <summary>
-        ///     Prevents a default instance of the <see cref="T:Stumps.Web.Responses.ErrorJsonResponse"/> class from being created.
+        ///     Prevents a default instance of the <see cref="ErrorJsonResponse"/> class from being created.
         /// </summary>
-        /// <param name="error">The <see cref="T:Stumps.Web.Models.ErrorModel"/> to return.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="error"/>is <c>null</c>.</exception>
+        /// <param name="error">The <see cref="ErrorModel"/> to return.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="error"/>is <c>null</c>.</exception>
         private ErrorJsonResponse(ErrorModel error) : base(error, new DefaultJsonSerializer())
         {
-
-            if (error == null)
-            {
-                throw new ArgumentNullException("error");
-            }
-
-            _errorModel = error;
-
+            _errorModel = error ?? throw new ArgumentNullException(nameof(error));
         }
 
         /// <summary>
@@ -39,7 +30,7 @@
         /// </value>
         public string ErrorMessage
         {
-            get { return _errorModel.ErrorMessage; }
+            get => _errorModel.ErrorMessage;
         }
 
         /// <summary>
@@ -50,17 +41,16 @@
         /// </value>
         public string FullException
         {
-            get { return _errorModel.FullException; }
+            get => _errorModel.FullException;
         }
 
         /// <summary>
-        ///     Creates a new <see cref="T:Stumps.Web.Responses.ErrorJsonResponse" /> from an exception.
+        ///     Creates a new <see cref="ErrorJsonResponse" /> from an exception.
         /// </summary>
         /// <param name="ex">The exception used to generate the error.</param>
-        /// <returns>A new <see cref="T:Stumps.Web.Responses.ErrorJsonResponse"/> object.</returns>
+        /// <returns>A new <see cref="ErrorJsonResponse"/> object.</returns>
         public static ErrorJsonResponse FromException(Exception ex)
         {
-
             if (ex == null)
             {
                 return new ErrorJsonResponse(
@@ -100,17 +90,15 @@
             }
 
             return response;
-
         }
 
         /// <summary>
-        ///     Creates a new <see cref="T:Stumps.Web.Responses.ErrorJsonResponse" /> from an error message.
+        ///     Creates a new <see cref="ErrorJsonResponse" /> from an error message.
         /// </summary>
         /// <param name="message">The error message.</param>
-        /// <returns>A new <see cref="T:Stumps.Web.Responses.ErrorJsonResponse"/> object.</returns>
+        /// <returns>A new <see cref="ErrorJsonResponse"/> object.</returns>
         public static ErrorJsonResponse FromMessage(string message)
         {
-
             var error = new ErrorModel
             {
                 ErrorMessage = message
@@ -119,9 +107,6 @@
             var response = new ErrorJsonResponse(error);
 
             return response;
-
         }
-
     }
-
 }

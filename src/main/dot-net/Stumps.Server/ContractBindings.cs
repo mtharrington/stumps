@@ -1,6 +1,5 @@
 namespace Stumps.Server
 {
-
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -10,24 +9,19 @@ namespace Stumps.Server
     /// </summary>
     public static class ContractBindings
     {
-
         private static readonly Dictionary<string, Type> KnownRules = FindRulesForAssembly();
 
         /// <summary>
         ///     Creates a Stump from a contract.
         /// </summary>
-        /// <param name="contract">The <see cref="T:Stumps.Server.StumpContract"/> used to create the Stump.</param>
+        /// <param name="contract">The <see cref="StumpContract"/> used to create the Stump.</param>
         /// <returns>
-        ///     A <see cref="T:Stumps.Stump"/> created from the specified <paramref name="contract"/>.
+        ///     A <see cref="Stump"/> created from the specified <paramref name="contract"/>.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException"><paramref name="contract"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="contract"/> is <c>null</c>.</exception>
         public static Stump CreateStumpFromContract(StumpContract contract)
         {
-
-            if (contract == null)
-            {
-                throw new ArgumentNullException("contract");
-            }
+            contract = contract ?? throw new ArgumentNullException(nameof(contract));
 
             var stump = new Stump(contract.StumpId);
 
@@ -37,47 +31,37 @@ namespace Stumps.Server
                 stump.AddRule(rule);
             }
 
-            stump.Response = contract.Response;
+            stump.Responses.Add(contract.Response);
 
             return stump;
-
         }
 
         /// <summary>
-        ///     Creates a <see cref="T:Stumps.IStumpRule"/> from a <see cref="T:Stumps.Server.RuleContract"/>.
+        ///     Creates a <see cref="IStumpRule"/> from a <see cref="RuleContract"/>.
         /// </summary>
-        /// <param name="contract">The <see cref="T:Stumps.Server.RuleContract"/> used to create the <see cref="T:Stumps.IStumpRule"/>.</param>
-        /// <returns>A <see cref="T:Stumps.IStumpRule"/> object created from the specified <paramref name="contract"/>.</returns>
-        /// <exception cref="System.ArgumentNullException"><paramref name="contract"/> is <c>null</c>.</exception>
+        /// <param name="contract">The <see cref="RuleContract"/> used to create the <see cref="IStumpRule"/>.</param>
+        /// <returns>A <see cref="IStumpRule"/> object created from the specified <paramref name="contract"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="contract"/> is <c>null</c>.</exception>
         public static IStumpRule CreateRuleFromContract(RuleContract contract)
         {
-
-            if (contract == null)
-            {
-                throw new ArgumentNullException("contract");
-            }
+            contract = contract ?? throw new ArgumentNullException(nameof(contract));
 
             var type = KnownRules[contract.RuleName];
             var rule = Activator.CreateInstance(type) as IStumpRule;
             rule.InitializeFromSettings(contract.GetRuleSettings());
             return rule;
-
         }
 
         /// <summary>
-        ///     Creates an object based on an <see cref="T:Stumps.IStumpRule"/> from a <see cref="T:Stumps.Server.RuleContract"/>.
+        ///     Creates an object based on an <see cref="IStumpRule"/> from a <see cref="RuleContract"/>.
         /// </summary>
-        /// <typeparam name="T">The concrete implementation of the <see cref="T:Stumps.IStumpRule"/> rule to create.</typeparam>
-        /// <param name="contract">The <see cref="T:Stumps.Server.RuleContract"/> used to create the <see cref="T:Stumps.IStumpRule"/>.</param>
-        /// <returns>A <see cref="T:Stumps.IStumpRule"/> object created from the specified <paramref name="contract"/>.</returns>
-        /// <exception cref="System.ArgumentNullException"><paramref name="contract"/> is <c>null</c>.</exception>
+        /// <typeparam name="T">The concrete implementation of the <see cref="IStumpRule"/> rule to create.</typeparam>
+        /// <param name="contract">The <see cref="RuleContract"/> used to create the <see cref="IStumpRule"/>.</param>
+        /// <returns>A <see cref="IStumpRule"/> object created from the specified <paramref name="contract"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="contract"/> is <c>null</c>.</exception>
         public static T CreateRuleFromContract<T>(RuleContract contract) where T : IStumpRule, new()
         {
-
-            if (contract == null)
-            {
-                throw new ArgumentNullException("contract");
-            }
+            contract = contract ?? throw new ArgumentNullException(nameof(contract));
 
             var type = KnownRules[contract.RuleName];
             var rule = Activator.CreateInstance(type) as IStumpRule;
@@ -92,7 +76,6 @@ namespace Stumps.Server
             }
 
             return (T)rule;
-
         }
 
         /// <summary>
@@ -101,7 +84,6 @@ namespace Stumps.Server
         /// <returns>A dictionary of rules for the current assembly.</returns>
         private static Dictionary<string, Type> FindRulesForAssembly()
         {
-
             var dict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
             var baseType = typeof(IStumpRule);
 
@@ -115,7 +97,5 @@ namespace Stumps.Server
 
             return dict;
         }
-
     }
-
 }

@@ -1,6 +1,5 @@
 ﻿namespace Stumps.Rules
 {
-
     using System;
     using System.Collections.Generic;
 
@@ -9,10 +8,8 @@
     /// </summary>
     public class BodyLengthRule : IStumpRule
     {
-
         private const string MaximumLengthSettingName = "length.maximum";
         private const string MinimumLengthSettingName = "length.minimum";
-
         private const int DefaultMinimumLength = int.MinValue;
         private const int DefaultMaximumLength = int.MinValue;
 
@@ -20,7 +17,7 @@
         private int _minimumLength;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Rules.BodyLengthRule"/> class.
+        ///     Initializes a new instance of the <see cref="BodyLengthRule"/> class.
         /// </summary>
         public BodyLengthRule()
         {
@@ -29,17 +26,15 @@
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Rules.BodyLengthRule"/> class.
+        ///     Initializes a new instance of the <see cref="BodyLengthRule"/> class.
         /// </summary>
         /// <param name="minimumBodyLength">The minimum length of the body.</param>
         /// <param name="maximumBodyLength">The maximum length of the body.</param>
         public BodyLengthRule(int minimumBodyLength, int maximumBodyLength)
         {
-
             this.IsInitialized = true;
             _minimumLength = minimumBodyLength;
             _maximumLength = maximumBodyLength;
-
         }
         
         /// <summary>
@@ -62,7 +57,7 @@
         /// </value>
         public int MaximumBodyLength
         {
-            get { return _maximumLength; }
+            get => _maximumLength;
         }
 
         /// <summary>
@@ -73,41 +68,35 @@
         /// </value>
         public int MinimumBodyLength
         {
-            get { return _minimumLength; }
+            get => _minimumLength;
         }
         
         /// <summary>
-        ///     Gets an enumerable list of <see cref="T:Stumps.RuleSetting" /> objects used to represent the current instance.
+        ///     Gets an enumerable list of <see cref="RuleSetting" /> objects used to represent the current instance.
         /// </summary>
         /// <returns>
-        ///     An enumerable list of <see cref="T:Stumps.RuleSetting" /> objects used to represent the current instance.
+        ///     An enumerable list of <see cref="RuleSetting" /> objects used to represent the current instance.
         /// </returns>
         public IEnumerable<RuleSetting> GetRuleSettings()
         {
-
             var helper = new RuleSettingsHelper();
             helper.Add(BodyLengthRule.MaximumLengthSettingName, _maximumLength);
             helper.Add(BodyLengthRule.MinimumLengthSettingName, _minimumLength);
 
             return helper.ToEnumerableList();
-
         }
 
         /// <summary>
-        ///     Initializes a rule from an enumerable list of <see cref="T:Stumps.RuleSetting" /> objects.
+        ///     Initializes a rule from an enumerable list of <see cref="RuleSetting" /> objects.
         /// </summary>
-        /// <param name="settings">The enumerable list of <see cref="T:Stumps.RuleSetting" /> objects.</param>
+        /// <param name="settings">The enumerable list of <see cref="RuleSetting" /> objects.</param>
         public void InitializeFromSettings(IEnumerable<RuleSetting> settings)
         {
+            settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
             if (this.IsInitialized)
             {
                 throw new InvalidOperationException(BaseResources.BodyRuleAlreadyInitializedError);
-            }
-
-            if (settings == null)
-            {
-                throw new ArgumentNullException("settings");
             }
 
             var helper = new RuleSettingsHelper(settings);
@@ -115,19 +104,17 @@
             _minimumLength = helper.FindInteger(BodyLengthRule.MinimumLengthSettingName, BodyLengthRule.DefaultMinimumLength);
 
             this.IsInitialized = true;
-
         }
 
         /// <summary>
         ///     Determines whether the specified request matches the rule.
         /// </summary>
-        /// <param name="request">The <see cref="T:Stumps.IStumpsHttpRequest" /> to evaluate.</param>
+        /// <param name="request">The <see cref="IStumpsHttpRequest" /> to evaluate.</param>
         /// <returns>
         ///   <c>true</c> if the <paramref name="request" /> matches the rule, otherwise, <c>false</c>.
         /// </returns>
         public bool IsMatch(IStumpsHttpRequest request)
         {
-
             if (request == null)
             {
                 return false;
@@ -136,9 +123,6 @@
             var match = request.BodyLength >= _minimumLength && request.BodyLength <= _maximumLength;
 
             return match;
-
         }
-        
     }
-
 }

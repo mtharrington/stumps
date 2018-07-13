@@ -1,17 +1,15 @@
 ﻿namespace Stumps
 {
-
     using System;
     using System.Threading.Tasks;
     using Stumps.Http;
 
     /// <summary>
-    ///     A class implementing the <see cref="T:Stumps.Http.IHttpHandler"/> interface that processes HTTP requests
+    ///     A class implementing the <see cref="IHttpHandler"/> interface that processes HTTP requests
     ///     against a list of Stumps.
     /// </summary>
     internal class StumpsHandler : IHttpHandler
     {
-
         /// <summary>
         ///     The minimum amount of time allowed for a delayed response.
         /// </summary>
@@ -26,55 +24,44 @@
         private volatile bool _handlerEnabled;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.StumpsHandler" /> class.
+        ///     Initializes a new instance of the <see cref="StumpsHandler" /> class.
         /// </summary>
         /// <param name="stumpsManager">The stumps manager.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="stumpsManager"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="stumpsManager"/> is <c>null</c>.</exception>
         public StumpsHandler(IStumpsManager stumpsManager)
         {
-
-            if (stumpsManager == null)
-            {
-                throw new ArgumentNullException("stumpsManager");
-            }
-
-            _stumpsManager = stumpsManager;
+            _stumpsManager = stumpsManager ?? throw new ArgumentNullException(nameof(stumpsManager));
             _handlerEnabled = true;
-
         }
 
         /// <summary>
-        ///     Occurs when an incomming HTTP requst is processed and responded to by the HTTP handler.
+        ///     Occurs when an incoming HTTP requst is processed and responded to by the HTTP handler.
         /// </summary>
         public event EventHandler<StumpsContextEventArgs> ContextProcessed;
 
         /// <summary>
-        /// Gets or sets a value indicating whether [enabled].
+        ///     Gets or sets a value indicating whether this isntance is enabled.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if [enabled]; otherwise, <c>false</c>.
+        ///     <c>true</c> if enabled; otherwise, <c>false</c>.
         /// </value>
         public bool Enabled
         {
-            get { return _handlerEnabled; }
-            set { _handlerEnabled = value; }
+            get => _handlerEnabled;
+            set => _handlerEnabled = value;
         }
 
         /// <summary>
         ///     Processes an incoming HTTP request.
         /// </summary>
-        /// <param name="context">The <see cref="T:Stumps.IStumpsHttpContext" /> representing both the incoming request and the response.</param>
+        /// <param name="context">The <see cref="IStumpsHttpContext" /> representing both the incoming request and the response.</param>
         /// <returns>
-        ///     A member of the <see cref="T:Stumps.Http.ProcessHandlerResult" /> enumeration.
+        ///     A member of the <see cref="ProcessHandlerResult" /> enumeration.
         /// </returns>
-        /// <exception cref="System.ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
         public async Task<ProcessHandlerResult> ProcessRequest(IStumpsHttpContext context)
         {
-
-            if (context == null)
-            {
-                throw new ArgumentNullException("context");
-            }
+            context = context ?? throw new ArgumentNullException(nameof(context));
 
             // Early exit, if all Stumps are disabled
             if (!_handlerEnabled)
@@ -82,89 +69,73 @@
                 return ProcessHandlerResult.Continue;
             }
 
-            var result = ProcessHandlerResult.Continue;
-
             var stump = _stumpsManager.FindStumpForContext(context);
 
-            if (stump != null)
+            // Early exit if the stump cannot be found
+            if (stump == null)
             {
-
-                if (stump.ResponseDelay > StumpsHandler.MinimumResponseDelay)
-                {
-                    var delay = stump.ResponseDelay;
-                    delay = delay < StumpsHandler.MaximumResponseDelay ? delay : StumpsHandler.MaximumResponseDelay;
-                    //TimerWait.Wait(delay);
-                    await Task.Delay(delay);
-                }
-
+                return ProcessHandlerResult.Continue;
             }
 
-            if (stump != null && stump.TerminateConnection)
+            // Create the response
+            var stumpResponse = stump.Responses.CreateResponse(context.Request);
+
+            if (stumpResponse.ResponseDelay > StumpsHandler.MinimumResponseDelay)
             {
+                var delay = stumpResponse.ResponseDelay;
+                delay = delay < StumpsHandler.MaximumResponseDelay ? delay : StumpsHandler.MaximumResponseDelay;
 
-                result = ProcessHandlerResult.DropConnection;
-
-            }
-            else if (stump != null && !stump.TerminateConnection)
-            {
-
-                PopulateResponse(context, stump);
-
-                var stumpsResponse = context.Response as StumpsHttpResponse;
-
-                if (stumpsResponse != null)
-                {
-                    stumpsResponse.Origin = HttpResponseOrigin.Stump;
-                    stumpsResponse.StumpId = stump.StumpId;
-                }
-
-                if (this.ContextProcessed != null)
-                {
-                    this.ContextProcessed(this, new StumpsContextEventArgs(context));
-                }
-                
-                result = ProcessHandlerResult.Terminate;
-
+                await Task.Delay(delay);
             }
 
-            return result;
+            if (stumpResponse.TerminateConnection)
+            {
+                return ProcessHandlerResult.DropConnection;
+            }
 
+            PopulateResponse(context, stumpResponse);
+
+            if (context.Response is StumpsHttpResponse stumpsResponse)
+            {
+                stumpsResponse.Origin = HttpResponseOrigin.Stump;
+                stumpsResponse.StumpId = stump.StumpId;
+            }
+
+            this.ContextProcessed?.Invoke(this, new StumpsContextEventArgs(context));
+
+            return ProcessHandlerResult.Terminate;
         }
 
         /// <summary>
         ///     Populates the response of the HTTP context from the Stump.
         /// </summary>
-        /// <param name="incommingHttpContext">The incomming HTTP context.</param>
-        /// <param name="stump">The <see cref="T:Stumps.Stump"/> used to populate the response.</param>
-        private void PopulateResponse(IStumpsHttpContext incommingHttpContext, Stump stump)
+        /// <param name="incomingHttpContext">The incoming HTTP context.</param>
+        /// <param name="stumpResponse">The <see cref="IStumpsHttpResponse"/> used to populate the <paramref name="incomingHttpContext"/> response.</param>
+        private void PopulateResponse(IStumpsHttpContext incomingHttpContext, IStumpsHttpResponse stumpResponse)
         {
-
             // Write the status code information
-            incommingHttpContext.Response.StatusCode = stump.Response.StatusCode;
-            incommingHttpContext.Response.StatusDescription = stump.Response.StatusDescription;
+            incomingHttpContext.Response.StatusCode = stumpResponse.StatusCode;
+            incomingHttpContext.Response.StatusDescription = stumpResponse.StatusDescription;
 
             // Write the headers
-            incommingHttpContext.Response.Headers.Clear();
+            incomingHttpContext.Response.Headers.Clear();
 
-            stump.Response.Headers.CopyTo(incommingHttpContext.Response.Headers);
+            stumpResponse.Headers.CopyTo(incomingHttpContext.Response.Headers);
 
             // Write the body
-            incommingHttpContext.Response.ClearBody();
+            incomingHttpContext.Response.ClearBody();
             
-            if (stump.Response.BodyLength > 0)
+            if (stumpResponse.BodyLength > 0)
             {
-                var buffer = stump.Response.GetBody();
-                if (stump.Response.Headers["Content-Encoding"] != null)
+                var buffer = stumpResponse.GetBody();
+                if (stumpResponse.Headers["Content-Encoding"] != null)
                 {
-                    var encoder = new ContentEncoder(stump.Response.Headers["Content-Encoding"]);
+                    var encoder = new ContentEncoder(stumpResponse.Headers["Content-Encoding"]);
                     buffer = encoder.Encode(buffer);
                 }
 
-                incommingHttpContext.Response.AppendToBody(buffer);
+                incomingHttpContext.Response.AppendToBody(buffer);
             }
-
         }
-
     }
-
 }

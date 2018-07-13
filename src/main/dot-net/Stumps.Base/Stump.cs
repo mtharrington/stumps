@@ -1,6 +1,5 @@
 ﻿namespace Stumps
 {
-
     using System;
     using System.Collections.Generic;
 
@@ -9,28 +8,25 @@
     /// </summary>
     public sealed class Stump
     {
-
         private readonly List<IStumpRule> _ruleList;
-        private IStumpsHttpResponse _response;
+        private IStumpResponseFactory _responseFactory;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Stump" /> class.
+        ///     Initializes a new instance of the <see cref="Stump" /> class.
         /// </summary>
         /// <param name="stumpId">The unique identifier for the stump.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="stumpId"/> is <c>null</c>, an empty string, or only contains white space.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="stumpId"/> is <c>null</c>, an empty string, or only contains white space.</exception>
         public Stump(string stumpId)
         {
-
             if (string.IsNullOrWhiteSpace(stumpId))
             {
-                throw new ArgumentNullException("stumpId");
+                throw new ArgumentNullException(nameof(stumpId));
             }
 
             this.StumpId = stumpId;
             _ruleList = new List<IStumpRule>();
 
-            _response = null;
-
+            _responseFactory = new StumpResponseFactory();
         }
 
         /// <summary>
@@ -39,46 +35,18 @@
         /// <value>
         ///     The number of rules for the Stump.
         /// </value>
-        public int Count
-        {
-            get { return _ruleList.Count; }
-        }
+        public int Count => _ruleList.Count;
 
         /// <summary>
-        ///     Gets or sets the response for the Stump.
+        ///     Gets or sets the response factory for the stump.
         /// </summary>
         /// <value>
-        ///     The response for the Stump.
+        ///     The response factory for the stump.
         /// </value>
-        public IStumpsHttpResponse Response
+        public IStumpResponseFactory Responses
         {
-            get
-            {
-                return _response;
-            }
-
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException("value");
-                }
-
-                _response = value;
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the amount of time (in milliseconds) the response is delayed.
-        /// </summary>
-        /// <value>
-        ///     The amount of time (in milliseconds) the response is delayed.
-        /// </value>
-        /// <remarks>A value of <c>0</c> or less will not cause a delay.</remarks>
-        public int ResponseDelay
-        {
-            get;
-            set;
+            get => _responseFactory;
+            set => _responseFactory = value ?? throw new ArgumentNullException(nameof(value));
         }
 
         /// <summary>
@@ -94,31 +62,14 @@
         }
 
         /// <summary>
-        ///     Gets or sets a flag indicating whether to forceably terminate the connection.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if the connection should be forceably terminated; otherwise, <c>false</c>.
-        /// </value>
-        public bool TerminateConnection
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         ///     Adds the rule to the Stump.
         /// </summary>
         /// <param name="rule">The rule to add to the Stump.</param>
         public void AddRule(IStumpRule rule)
         {
-
-            if (rule == null)
-            {
-                throw new ArgumentNullException("rule");
-            }
+            rule = rule ?? throw new ArgumentNullException(nameof(rule));
 
             _ruleList.Add(rule);
-
         }
 
         /// <summary>
@@ -130,8 +81,9 @@
         /// </returns>
         public bool IsMatch(IStumpsHttpContext context)
         {
-
-            if (context == null || _response == null || _ruleList.Count == 0)
+            if (context == null 
+                || _responseFactory?.HasResponse == false
+                || _ruleList.Count == 0)
             {
                 return false;
             }
@@ -149,9 +101,6 @@
             }
 
             return match;
-
         }
-
     }
-
 }

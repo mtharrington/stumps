@@ -1,6 +1,5 @@
 ﻿namespace Stumps
 {
-
     using System;
     using System.ServiceProcess;
     using Stumps.Server;
@@ -10,21 +9,16 @@
     /// </summary>
     public partial class StumpsService : ServiceBase
     {
-
         private readonly StumpsRunner _server;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Stumps.StumpsService"/> class.
+        /// Initializes a new instance of the <see cref="StumpsService"/> class.
         /// </summary>
         /// <param name="configuration">The configuration.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="configuration"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="configuration"/> is <c>null</c>.</exception>
         public StumpsService(StumpsConfiguration configuration)
         {
-
-            if (configuration == null)
-            {
-                throw new ArgumentNullException("configuration");
-            }
+            configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
 
             InitializeComponent();
             _server = new StumpsRunner(configuration);
@@ -46,7 +40,5 @@
         {
             _server.Shutdown();
         }
-
     }
-
 }

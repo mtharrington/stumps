@@ -1,8 +1,8 @@
 ﻿namespace Stumps.Http
 {
-
     using System;
     using System.Net;
+    using System.Threading;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -11,35 +11,18 @@
     internal sealed class StumpsHttpContext : IStumpsHttpContext
     {
 
-        private readonly HttpListenerContext _context;
-        private readonly StumpsHttpRequest _request;
-        private readonly StumpsHttpResponse _response;
+        private HttpListenerContext _context;
+        private StumpsHttpRequest _request;
+        private StumpsHttpResponse _response;
+        private int initializeCalled = 0;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Http.StumpsHttpContext"/> class.
+        ///     Initializes a new instance of the <see cref="StumpsHttpContext"/> class.
         /// </summary>
-        /// <param name="context">The <see cref="T:System.Net.HttpListenerContext"/> used to initialize the instance.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
-        public StumpsHttpContext(HttpListenerContext context)
+        public StumpsHttpContext()
         {
-
-            if (context == null)
-            {
-                throw new ArgumentNullException("context");
-            }
-
-            this.UniqueIdentifier = Guid.NewGuid();
-            this.ReceivedDate = DateTime.Now;
-
-            _context = context;
-
-            // Initialize the HTTP request for the context
-            _request = new StumpsHttpRequest();
-            _request.InitializeInstance(context.Request);
-
             // Initialize the HTTP response for the context
             _response = new StumpsHttpResponse();
-
         }
 
         /// <summary>
@@ -50,30 +33,30 @@
         /// </value>
         public DateTime ReceivedDate
         {
-            get; 
+            get;
             private set;
         }
 
         /// <summary>
-        ///     Gets the <see cref="T:Stumps.IStumpsHttpRequest" /> object for the current HTTP request.
+        ///     Gets the <see cref="IStumpsHttpRequest" /> object for the current HTTP request.
         /// </summary>
         /// <value>
-        ///     The <see cref="T:Stumps.IStumpsHttpRequest" /> object for the current HTTP request.
+        ///     The <see cref="IStumpsHttpRequest" /> object for the current HTTP request.
         /// </value>
         public IStumpsHttpRequest Request
         {
-            get { return _request; }
+            get => _request;
         }
 
         /// <summary>
-        ///     Gets the <see cref="T:Stumps.IStumpsHttpResponse" /> object for the current HTTP response.
+        ///     Gets the <see cref="IStumpsHttpResponse" /> object for the current HTTP response.
         /// </summary>
         /// <value>
-        ///     The <see cref="T:Stumps.IStumpsHttpResponse" /> object for the current HTTP response.
+        ///     The <see cref="IStumpsHttpResponse" /> object for the current HTTP response.
         /// </value>
         public IStumpsHttpResponse Response
         {
-            get { return _response; }
+            get => _response;
         }
 
         /// <summary>
@@ -92,9 +75,8 @@
         ///     Closes the HTTP context and responds to the calling client.
         /// </summary>
         /// <param name="abort">if set to <c>true</c>, the connection is aborted without responding.</param>
-        public void EndResponse(bool abort)
+        public async Task EndResponse(bool abort)
         {
-
             // Forceably abort the connection
             if (abort)
             {
@@ -110,23 +92,47 @@
             WriteHeaders();
 
             // Write the body
-            WriteBody();
+            await WriteBody();
 
             _context.Response.Close();
+        }
 
+        /// <summary>
+        ///     Initializes the instance with a specified <see cref="HttpListenerContext"/> object.
+        /// </summary>
+        /// <param name="context">The <see cref="HttpListenerContext"/> used to initialize the instance.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        public async Task InitializeInstance(HttpListenerContext context)
+        {
+            var methodAlreadyCalled = Interlocked.CompareExchange(ref initializeCalled, 1, 0) == 1;
+
+            if (methodAlreadyCalled)
+            {
+                throw new InvalidOperationException("The object was already initialized with an existing context.");
+            }
+
+            context = context ?? throw new ArgumentNullException(nameof(context));
+
+            this.UniqueIdentifier = Guid.NewGuid();
+            this.ReceivedDate = DateTime.Now;
+
+            _context = context;
+
+            // Initialize the HTTP request for the context
+            _request = new StumpsHttpRequest();
+
+            await _request.InitializeInstance(context.Request);
         }
 
         /// <summary>
         ///     Writes the body to the HTTP listener response.
         /// </summary>
-        private async void WriteBody()
+        private async Task WriteBody()
         {
-
             if (_response.BodyLength > 0)
             {
                 await _context.Response.OutputStream.WriteAsync(_response.GetBody(), 0, _response.BodyLength);
             }
-
         }
 
         /// <summary>
@@ -134,7 +140,6 @@
         /// </summary>
         private void WriteHeaders()
         {
-
             // content type
             _context.Response.ContentType = _response.Headers["content-type"] ?? string.Empty;
 
@@ -153,11 +158,23 @@
                     continue;
                 }
 
-                _context.Response.Headers.Add(headerName, _response.Headers[headerName]);
+                try
+                {
+                    var writeName = headerName;
+                    var writeValue = _response.Headers[headerName];
+
+                    if (HttpHeaderSanitization.SanitizeHeader(ref writeName, ref writeValue))
+                    {
+                        _context.Response.Headers.Add(writeName, writeValue);
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    // The header could fail to add because it is being referenced
+                    // as a property - this is OK.
+                    // TODO: Log error
+                }
             }
-
         }
-
     }
-
 }

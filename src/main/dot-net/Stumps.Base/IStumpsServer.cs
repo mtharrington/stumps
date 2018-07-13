@@ -1,6 +1,5 @@
 namespace Stumps
 {
-
     using System;
 
     /// <summary>
@@ -8,9 +7,8 @@ namespace Stumps
     /// </summary>
     public interface IStumpsServer : IDisposable
     {
-
         /// <summary>
-        ///     Occurs when the server processed an incomming HTTP request and returned the response to the client.
+        ///     Occurs when the server processed an incoming HTTP request and returned the response to the client.
         /// </summary>
         event EventHandler<StumpsContextEventArgs> RequestFinished;
 
@@ -21,21 +19,21 @@ namespace Stumps
         event EventHandler<StumpsContextEventArgs> RequestProcessed;
 
         /// <summary>
-        ///     Occurs when the server receives an incomming HTTP request.
+        ///     Occurs when the server receives an incoming HTTP request.
         /// </summary>
         event EventHandler<StumpsContextEventArgs> RequestReceived;
 
         /// <summary>
-        ///     Gets or sets the default response when a <see cref="T:Stumps.Stump"/> is not found, 
+        ///     Gets or sets the default response when a <see cref="Stump"/> is not found, 
         ///     and a remote HTTP server is not available.
         /// </summary>
         /// <value>
-        ///     The default response when a <see cref="T:Stumps.Stump"/> is not found, and a remote HTTP 
+        ///     The default response when a <see cref="Stump"/> is not found, and a remote HTTP 
         ///     server is not available.
         /// </value>
-        /// <exception cref="System.InvalidOperationException">The value cannot be changed while the server is running.</exception>
+        /// <exception cref="InvalidOperationException">The value cannot be changed while the server is running.</exception>
         FallbackResponse DefaultResponse { get; set; }
-        
+
         /// <summary>
         ///     Gets a value indicating whether the server is running.
         /// </summary>
@@ -50,18 +48,18 @@ namespace Stumps
         /// <value>
         ///     The port the HTTP server is using to listen for traffic.
         /// </value>
-        /// <exception cref="System.InvalidOperationException">The value cannot be changed while the server is running.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The value is not a valid TCP port.</exception>
+        /// <exception cref="InvalidOperationException">The value cannot be changed while the server is running.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The value is not a valid TCP port.</exception>
         int ListeningPort { get; }
 
         /// <summary>
-        ///     Gets or sets the remote HTTP that is contacted when a <see cref="T:Stumps.Stump" /> is unavailable to handle the incomming request.
+        ///     Gets or sets the remote HTTP that is contacted when a <see cref="Stump" /> is unavailable to handle the incoming request.
         /// </summary>
         /// <value>
-        ///     The remote HTTP that is contacted when a <see cref="T:Stumps.Stump" /> is unavailable to handle the incomming request.
+        ///     The remote HTTP that is contacted when a <see cref="Stump" /> is unavailable to handle the incoming request.
         /// </value>
-        /// <exception cref="System.InvalidOperationException">The value cannot be changed while the server is running.</exception>
-        /// <exception cref="System.ArgumentOutOfRangeException">The URI for the remote HTTP server is invalid.</exception>
+        /// <exception cref="InvalidOperationException">The value cannot be changed while the server is running.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The URI for the remote HTTP server is invalid.</exception>
         Uri RemoteHttpServer { get; set; }
 
         /// <summary>
@@ -105,28 +103,28 @@ namespace Stumps
         int TotalRequestsServed { get; }
 
         /// <summary>
-        ///     Gets or sets a value indicating whether use HTTPS for incomming connections rather than HTTP.
+        ///     Gets or sets a value indicating whether use HTTPS for incoming connections rather than HTTP.
         /// </summary>
         /// <value>
-        ///     <c>true</c> to use HTTPS for incomming HTTP connections rather than HTTP.
+        ///     <c>true</c> to use HTTPS for incoming HTTP connections rather than HTTP.
         /// </value>
-        bool UseHttpsForIncommingConnections { get; set; }
+        bool UseHttpsForIncomingConnections { get; set; }
 
         /// <summary>
-        ///     Adds a new <see cref="T:Stumps.Stump" /> with a specified identifier to the collection.
+        ///     Adds a new <see cref="Stump" /> with a specified identifier to the collection.
         /// </summary>
-        /// <param name="stumpId">The unique identifier for the <see cref="T:Stumps.Stump" />.</param>
-        /// <returns>A new <see cref="T:Stumps.Stump"/> with the specified <paramref name="stumpId"/>.</returns>
-        /// <exception cref="System.ArgumentNullException"><paramref name="stumpId"/> is <c>null</c>.</exception>
-        /// <exception cref="System.ArgumentException">A <see cref="T:Stumps.Stump" /> with the same identifier already exists.</exception>
+        /// <param name="stumpId">The unique identifier for the <see cref="Stump" />.</param>
+        /// <returns>A new <see cref="Stump"/> with the specified <paramref name="stumpId"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="stumpId"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">A <see cref="Stump" /> with the same identifier already exists.</exception>
         Stump AddNewStump(string stumpId);
 
         /// <summary>
-        ///     Adds a new <see cref="T:Stumps.Stump" /> to the collection.
+        ///     Adds a new <see cref="Stump" /> to the collection.
         /// </summary>
-        /// <param name="stump">The <see cref="T:Stumps.Stump" /> to add to the collection.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="stump"/> is <c>null</c>.</exception>
-        /// <exception cref="System.ArgumentException">A <see cref="T:Stumps.Stump" /> with the same identifier already exists.</exception>
+        /// <param name="stump">The <see cref="Stump" /> to add to the collection.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="stump"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentException">A <see cref="Stump" /> with the same identifier already exists.</exception>
         void AddStump(Stump stump);
 
         /// <summary>
@@ -140,7 +138,7 @@ namespace Stumps
         /// </summary>
         /// <param name="stumpId">The unique identifier for the Stump.</param>
         /// <returns>
-        ///     A <see cref="T:Stumps.Stump"/> with the specified <paramref name="stumpId"/>.
+        ///     A <see cref="Stump"/> with the specified <paramref name="stumpId"/>.
         /// </returns>
         /// <remarks>
         ///     A <c>null</c> value is returned if a Stump is not found.
@@ -156,7 +154,5 @@ namespace Stumps
         ///     Starts this instance of the Stumps server.
         /// </summary>
         void Start();
-
     }
-
 }

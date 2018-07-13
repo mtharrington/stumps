@@ -1,6 +1,5 @@
 ﻿namespace Stumps.Server
 {
-
     using System;
     using System.Collections.Generic;
 
@@ -9,16 +8,15 @@
     /// </summary>
     public interface IStumpsHost : IDisposable
     {
-
         /// <summary>
         ///     Creates a new instance of a Stumps server.
         /// </summary>
         /// <param name="remoteServerHostName">The host name for the remote server by the Stumps server.</param>
-        /// <param name="port">The TCP used to listen for incomming HTTP requests.</param>
+        /// <param name="port">The TCP used to listen for incoming HTTP requests.</param>
         /// <param name="useSsl"><c>true</c> if the remote server requires SSL.</param>
         /// <param name="autoStart"><c>true</c> to automatically start the Stumps server.</param>
         /// <returns>
-        ///     A <see cref="T:Stumps.Server.StumpsServerInstance"/> represeting the new Stumps server.
+        ///     A <see cref="StumpsServerInstance"/> represeting the new Stumps server.
         /// </returns>
         StumpsServerInstance CreateServerInstance(string remoteServerHostName, int port, bool useSsl, bool autoStart);
 
@@ -32,7 +30,7 @@
         ///     Finds all Stumps servers hosted by the current instance.
         /// </summary>
         /// <returns>
-        ///     A generic list of <see cref="T:Stumps.Server.StumpsServerInstance"/> objects.
+        ///     A generic list of <see cref="StumpsServerInstance"/> objects.
         /// </returns>
         IList<StumpsServerInstance> FindAll();
 
@@ -41,7 +39,7 @@
         /// </summary>
         /// <param name="serverId">The unique identifier for the Stumps server.</param>
         /// <returns>
-        ///     A <see cref="T:Stumps.Server.StumpsServerInstance" /> with the specified identifier.
+        ///     A <see cref="StumpsServerInstance" /> with the specified identifier.
         /// </returns>
         /// <remarks>
         ///     A <c>null</c> value is returned if a Stumps server with the specified <paramref name="serverId"/>
@@ -75,7 +73,5 @@
         /// </summary>
         /// <param name="serverId">The unique identifier for the Stumps server.</param>
         void Start(string serverId);
-
     }
-
 }

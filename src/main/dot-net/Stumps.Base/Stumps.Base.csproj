@@ -60,7 +60,9 @@
     <Compile Include="FluentStumpExtensions.cs" />
     <Compile Include="FluentStumpServerExtensions.cs" />
     <Compile Include="HexExtensionMethods.cs" />
+    <Compile Include="HttpErrorResponses.cs" />
     <Compile Include="HttpHeaders.cs" />
+    <Compile Include="HttpHeaderSanitization.cs" />
     <Compile Include="HttpResponseOrigin.cs" />
     <Compile Include="HttpPipelineHandler.cs" />
     <Compile Include="Http\HttpServer.cs" />
@@ -73,6 +75,7 @@
     <Compile Include="Http\StumpsHttpRequest.cs" />
     <Compile Include="Http\StumpsHttpResponse.cs" />
     <Compile Include="IHttpHeaders.cs" />
+    <Compile Include="IStumpResponseFactory.cs" />
     <Compile Include="IStumpRule.cs" />
     <Compile Include="IStumpsHttpContextPart.cs" />
     <Compile Include="IStumpsHttpContext.cs" />
@@ -80,6 +83,7 @@
     <Compile Include="IStumpsHttpResponse.cs" />
     <Compile Include="IStumpsManager.cs" />
     <Compile Include="IStumpsServer.cs" />
+    <Compile Include="ResponseFactoryBehavior.cs" />
     <Compile Include="ServerScheme.cs" />
     <Compile Include="NetworkInformation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -101,6 +105,7 @@
     <Compile Include="Rules\UrlRule.cs" />
     <Compile Include="StreamUtility.cs" />
     <Compile Include="Stump.cs" />
+    <Compile Include="StumpResponseFactory.cs" />
     <Compile Include="StumpsContextEventArgs.cs" />
     <Compile Include="StumpsHandler.cs" />
     <Compile Include="StumpsManager.cs" />

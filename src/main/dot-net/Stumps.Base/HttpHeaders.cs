@@ -1,6 +1,5 @@
 namespace Stumps
 {
-
     using System;
     using System.Collections.Generic;
 
@@ -9,11 +8,10 @@ namespace Stumps
     /// </summary>
     public class HttpHeaders : IHttpHeaders
     {
-
         private readonly Dictionary<string, string> _headers;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:Stumps.HttpHeaders"/> class.
+        /// Initializes a new instance of the <see cref="HttpHeaders"/> class.
         /// </summary>
         public HttpHeaders()
         {
@@ -28,7 +26,7 @@ namespace Stumps
         /// </value>
         public int Count
         {
-            get { return _headers.Count; }
+            get => _headers.Count;
         }
 
         /// <summary>
@@ -39,25 +37,25 @@ namespace Stumps
         /// </value>
         public ICollection<string> HeaderNames
         {
-            get { return _headers.Keys; }
+            get => _headers.Keys;
         }
 
         /// <summary>
-        ///     Gets a value indicating whether the <see cref="T:Stumps.IHttpHeaders" /> is read-only.
+        ///     Gets a value indicating whether the <see cref="IHttpHeaders" /> is read-only.
         /// </summary>
         /// <value>
-        ///     <c>true</c> if the <see cref="T:Stumps.IHttpHeaders" /> is read-only; otherwise, <c>false</c>.
+        ///     <c>true</c> if the <see cref="IHttpHeaders" /> is read-only; otherwise, <c>false</c>.
         /// </value>
         public virtual bool IsReadOnly
         {
-            get { return false; }
+            get => false;
         }
 
         /// <summary>
-        ///     Gets or sets the <see cref="System.String"/> value for the specified header name.
+        ///     Gets or sets the <see cref="String"/> value for the specified header name.
         /// </summary>
         /// <value>
-        ///     The <see cref="System.String"/> value for the specified header name.
+        ///     The <see cref="String"/> value for the specified header name.
         /// </value>
         /// <param name="headerName">The name of the header.</param>
         public virtual string this[string headerName]
@@ -67,7 +65,6 @@ namespace Stumps
                 var keyValue = _headers.ContainsKey(headerName) ? _headers[headerName] : null;
                 return keyValue;
             }
-
             set
             {
                 if (string.IsNullOrWhiteSpace(headerName) || value == null)
@@ -85,37 +82,27 @@ namespace Stumps
                 {
                     _headers.Add(headerName, value);
                 }
-
             }
-
         }
 
         /// <summary>
         ///     Clears all existing headers from the instance.
         /// </summary>
-        public virtual void Clear()
-        {
-            _headers.Clear();
-        }
+        public virtual void Clear() => _headers.Clear();
 
         /// <summary>
-        ///     Copies the elements of the <see cref="T:Stumps.IHttpHeaders"/> collection to another <see cref="T:Stumps.IHttpHeaders"/>.
+        ///     Copies the elements of the <see cref="IHttpHeaders"/> collection to another <see cref="IHttpHeaders"/>.
         /// </summary>
-        /// <param name="httpHeaders">The target <see cref="T:Stumps.IHttpHeaders"/>.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="httpHeaders"/> is <c>null</c>.</exception>
+        /// <param name="httpHeaders">The target <see cref="IHttpHeaders"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="httpHeaders"/> is <c>null</c>.</exception>
         public virtual void CopyTo(IHttpHeaders httpHeaders)
         {
-                
-            if (httpHeaders == null)
-            {
-                throw new ArgumentNullException("httpHeaders");
-            }
+            httpHeaders = httpHeaders ?? throw new ArgumentNullException(nameof(httpHeaders));
 
             foreach (var headerName in this.HeaderNames)
             {
                 httpHeaders[headerName] = this[headerName];
             }
-
         }
 
         /// <summary>
@@ -128,7 +115,5 @@ namespace Stumps
             var removed = _headers.Remove(headerName);
             return removed;
         }
-
     }
-
 }

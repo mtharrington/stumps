@@ -1,26 +1,24 @@
 namespace Stumps.Server.Data
 {
-
     using System;
     using System.Net;
 
     /// <summary>
-    ///     A class that provides an <see cref="T:Stumps.IStumpsHttpRequest"/> implementation using a
-    ///     <see cref="T:Stumps.Server.Data.HttpRequestEntity"/> object.
+    ///     A class that provides an <see cref="IStumpsHttpRequest"/> implementation using a
+    ///     <see cref="HttpRequestEntity"/> object.
     /// </summary>
     public class HttpRequestEntityReader : IStumpsHttpRequest
     {
-
         private readonly HttpRequestEntity _entity;
         private readonly byte[] _body;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Server.Data.HttpRequestEntityReader"/> class.
+        ///     Initializes a new instance of the <see cref="HttpRequestEntityReader"/> class.
         /// </summary>
         /// <param name="serverId">The unique identifier for the server.</param>
         /// <param name="requestEntity">The request entity.</param>
         /// <param name="dataAccess">The data access provider used by the instance.</param>
-        /// <exception cref="System.ArgumentNullException">
+        /// <exception cref="ArgumentNullException">
         /// <paramref name="serverId"/> is <c>null</c>.
         /// or
         /// <paramref name="requestEntity"/> is <c>null</c>.
@@ -29,33 +27,21 @@ namespace Stumps.Server.Data
         /// </exception>
         public HttpRequestEntityReader(string serverId, HttpRequestEntity requestEntity, IDataAccess dataAccess)
         {
-
             if (string.IsNullOrWhiteSpace(serverId))
             {
-                throw new ArgumentNullException("serverId");
+                throw new ArgumentNullException(nameof(serverId));
             }
 
-            if (requestEntity == null)
-            {
-                throw new ArgumentNullException("requestEntity");
+            dataAccess = dataAccess ?? throw new ArgumentNullException(nameof(dataAccess));
 
-            }
+            _entity = requestEntity ?? throw new ArgumentNullException(nameof(requestEntity));
 
-            if (dataAccess == null)
-            {
-                throw new ArgumentNullException("dataAccess");
-            }
-
-            _entity = requestEntity;
-
-            this.Headers = new HttpHeaders();
             foreach (var pair in _entity.Headers)
             {
                 this.Headers[pair.Name] = pair.Value;
             }
 
             _body = dataAccess.ServerReadResource(serverId, requestEntity.BodyResourceName) ?? new byte[0];
-
         }
 
         /// <summary>
@@ -66,7 +52,7 @@ namespace Stumps.Server.Data
         /// </value>
         public int BodyLength
         {
-            get { return _body.Length; }
+            get => _body.Length;
         }
 
         /// <summary>
@@ -78,8 +64,7 @@ namespace Stumps.Server.Data
         public IHttpHeaders Headers
         {
             get;
-            private set;
-        }
+        } = new HttpHeaders();
 
         /// <summary>
         ///     Gets the HTTP data transfer method used by the client.
@@ -89,7 +74,7 @@ namespace Stumps.Server.Data
         /// </value>
         public string HttpMethod
         {
-            get { return _entity.HttpMethod; }
+            get => _entity.HttpMethod;
         }
 
         /// <summary>
@@ -100,7 +85,7 @@ namespace Stumps.Server.Data
         /// </value>
         public IPEndPoint LocalEndPoint
         {
-            get { return new IPEndPoint(0, 0); }
+            get => new IPEndPoint(0, 0);
         }
 
         /// <summary>
@@ -111,7 +96,7 @@ namespace Stumps.Server.Data
         /// </value>
         public string ProtocolVersion
         {
-            get { return _entity.ProtocolVersion; }
+            get => _entity.ProtocolVersion;
         }
 
         /// <summary>
@@ -122,7 +107,7 @@ namespace Stumps.Server.Data
         /// </value>
         public string RawUrl
         {
-            get { return _entity.RawUrl; }
+            get => _entity.RawUrl;
         }
 
         /// <summary>
@@ -133,20 +118,15 @@ namespace Stumps.Server.Data
         /// </value>
         public IPEndPoint RemoteEndPoint
         {
-            get { return new IPEndPoint(0, 0); }
+            get => new IPEndPoint(0, 0);
         }
 
         /// <summary>
         ///     Gets the bytes for the HTTP body.
         /// </summary>
         /// <returns>
-        ///     An array of <see cref="T:System.Byte" /> values representing the HTTP body.
+        ///     An array of <see cref="Byte" /> values representing the HTTP body.
         /// </returns>
-        public byte[] GetBody()
-        {
-            return _body;
-        }
-
+        public byte[] GetBody() => _body;
     }
-
 }

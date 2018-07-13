@@ -1,30 +1,25 @@
 ﻿namespace Stumps
 {
-
     using System;
     using Stumps.Http;
 
     /// <summary>
-    ///     Provides data for an event that occurred for a <see cref="T:Stumps.IStumpsHttpContext"/>.
+    ///     Provides data for an event that occurred for a <see cref="IStumpsHttpContext"/>.
     /// </summary>
     public sealed class StumpsContextEventArgs : EventArgs
     {
-
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.StumpsContextEventArgs" /> class.
+        ///     Initializes a new instance of the <see cref="StumpsContextEventArgs" /> class.
         /// </summary>
-        /// <param name="context">The <see cref="T:Stumps.IStumpsHttpContext" /> associated with the event.</param>
+        /// <param name="context">The <see cref="IStumpsHttpContext" /> associated with the event.</param>
         internal StumpsContextEventArgs(IStumpsHttpContext context)
         {
-
             if (context == null)
             {
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
             }
 
-            var stumpsResponse = context.Response as StumpsHttpResponse;
-            
-            if (stumpsResponse != null)
+            if (context.Response is StumpsHttpResponse stumpsResponse)
             {
                 this.ResponseOrigin = stumpsResponse.Origin;
                 this.StumpId = stumpsResponse.StumpId;
@@ -36,19 +31,17 @@
             }
 
             this.Context = context;
-
         }
 
         /// <summary>
-        /// Gets the <see cref="T:Stumps.IStumpsHttpContext"/> associated with the event.
+        /// Gets the <see cref="IStumpsHttpContext"/> associated with the event.
         /// </summary>
         /// <value>
-        /// The <see cref="T:Stumps.IStumpsHttpContext"/> associated with the event.
+        /// The <see cref="IStumpsHttpContext"/> associated with the event.
         /// </value>
         public IStumpsHttpContext Context
         {
             get; 
-            private set;
         }
 
         /// <summary>
@@ -60,7 +53,6 @@
         public HttpResponseOrigin ResponseOrigin
         {
             get; 
-            private set;
         }
 
         /// <summary>
@@ -69,13 +61,10 @@
         /// <value>
         ///     The unique identifier for the Stump that processed the request.
         /// </value>
-        /// <remarks>If a <see cref="T:Stumps.Stump"/> was not used to process the request, the value will be <c>null</c>.</remarks>
+        /// <remarks>If a <see cref="Stump"/> was not used to process the request, the value will be <c>null</c>.</remarks>
         public string StumpId
         {
             get;
-            private set;
         }
-
     }
-
 }

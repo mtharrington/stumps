@@ -1,6 +1,5 @@
 ﻿namespace Stumps.Rules
 {
-
     using System;
     using System.Collections.Generic;
 
@@ -9,21 +8,20 @@
     /// </summary>
     public class UrlRule : IStumpRule
     {
-
         private const string UrlSetting = "url.value";
 
         private TextMatch _textMatch;
         private string _textMatchValue;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Rules.UrlRule"/> class.
+        ///     Initializes a new instance of the <see cref="UrlRule"/> class.
         /// </summary>
         public UrlRule()
         {   
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="T:Stumps.Rules.UrlRule"/> class.
+        ///     Initializes a new instance of the <see cref="UrlRule"/> class.
         /// </summary>
         /// <param name="value">The value used for the URL rule.</param>
         public UrlRule(string value)
@@ -51,61 +49,57 @@
         /// </value>
         public string UrlTextMatch
         {
-            get { return _textMatchValue; }
+            get => _textMatchValue;
         }
 
         /// <summary>
-        ///     Gets an enumerable list of <see cref="T:Stumps.RuleSetting" /> objects used to represent the current instance.
+        ///     Gets an enumerable list of <see cref="RuleSetting" /> objects used to represent the current instance.
         /// </summary>
         /// <returns>
-        ///     An enumerable list of <see cref="T:Stumps.RuleSetting" /> objects used to represent the current instance.
+        ///     An enumerable list of <see cref="RuleSetting" /> objects used to represent the current instance.
         /// </returns>
         public IEnumerable<RuleSetting> GetRuleSettings()
         {
-            
             var settings = new[]
             {
-                new RuleSetting { Name = UrlRule.UrlSetting, Value = _textMatchValue }
+                new RuleSetting
+                {
+                    Name = UrlRule.UrlSetting,
+                    Value = _textMatchValue
+                }
             };
 
             return settings;
-
         }
 
         /// <summary>
-        ///     Initializes a rule from an enumerable list of <see cref="T:Stumps.RuleSetting" /> objects.
+        ///     Initializes a rule from an enumerable list of <see cref="RuleSetting" /> objects.
         /// </summary>
-        /// <param name="settings">The enumerable list of <see cref="T:Stumps.RuleSetting" /> objects.</param>
+        /// <param name="settings">The enumerable list of <see cref="RuleSetting" /> objects.</param>
         public void InitializeFromSettings(IEnumerable<RuleSetting> settings)
         {
+            settings = settings ?? throw new ArgumentNullException(nameof(settings));
 
             if (this.IsInitialized)
             {
                 throw new InvalidOperationException(BaseResources.BodyRuleAlreadyInitializedError);
             }
 
-            if (settings == null)
-            {
-                throw new ArgumentNullException("settings");
-            }
-
             var helper = new RuleSettingsHelper(settings);
             var value = helper.FindString(UrlRule.UrlSetting, string.Empty);
 
             InitializeRule(value);
-
         }
 
         /// <summary>
         ///     Determines whether the specified request matches the rule.
         /// </summary>
-        /// <param name="request">The <see cref="T:Stumps.IStumpsHttpRequest" /> to evaluate.</param>
+        /// <param name="request">The <see cref="IStumpsHttpRequest" /> to evaluate.</param>
         /// <returns>
         ///   <c>true</c> if the <paramref name="request" /> matches the rule, otherwise, <c>false</c>.
         /// </returns>
         public bool IsMatch(IStumpsHttpRequest request)
         {
-
             if (request == null)
             {
                 return false;
@@ -113,7 +107,6 @@
 
             var match = _textMatch.IsMatch(request.RawUrl);
             return match;
-
         }
 
         /// <summary>
@@ -126,9 +119,6 @@
 
             _textMatch = new TextMatch(_textMatchValue, true);
             this.IsInitialized = true;
-
         }
-
     }
-
 }

@@ -38,9 +38,9 @@ namespace Stumps.Examples
         /// <summary>
         /// Shows the response to an HTTP request on the screen.
         /// </summary>
-        /// <param name="server">The <see cref="T:Stumps.StumpsServer"/> that processed the request.</param>
+        /// <param name="server">The <see cref="StumpsServer"/> that processed the request.</param>
         /// <param name="e">The <see cref="StumpsContextEventArgs"/> instance containing the event data.</param>
-        public static void ShowHttpResponse(StumpsServer server, StumpsContextEventArgs e)
+        public static void ShowHttpResponse(IStumpsServer server, StumpsContextEventArgs e)
         {
 
             var message = FriendlyOrigin[e.ResponseOrigin];

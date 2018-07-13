@@ -1,6 +1,5 @@
 ﻿namespace Stumps.Web
 {
-
     using System;
     using System.Linq;
     using Nancy;
@@ -13,20 +12,15 @@
     /// </summary>
     public sealed class ErrorStatusCodeHandler : IStatusCodeHandler
     {
-
         /// <summary>
         /// Handle the error code.
         /// </summary>
         /// <param name="statusCode">The HTTP status code.</param>
         /// <param name="context">Current context of the request.</param>
-        /// <exception cref="System.ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="context"/> is <c>null</c>.</exception>
         public void Handle(HttpStatusCode statusCode, NancyContext context)
         {
-
-            if (context == null)
-            {
-                throw new ArgumentNullException("context");
-            }
+            context = context ?? throw new ArgumentNullException(nameof(context));
 
             var clientWantsHtml = ShouldReturnFriendlyErrorPage(context);
 
@@ -38,14 +32,13 @@
             {
                 context.Response = new ErrorHtmlResponse(statusCode);
             }
-
         }
 
         /// <summary>
         /// Check if the error handler can handle errors of the provided status code.
         /// </summary>
         /// <param name="statusCode">The HTTP status code.</param>
-        /// <param name="context">The <see cref="T:Nancy.NancyContext" /> instance of the current request.</param>
+        /// <param name="context">The <see cref="NancyContext" /> instance of the current request.</param>
         /// <returns>
         /// <c>true</c> if if the instance handles the specified HTTP status code.
         /// </returns>
@@ -55,20 +48,18 @@
         }
 
         /// <summary>
-        ///     Determines if a friendly error page should be returned for a <see cref="T:Nancy.NancyContext"/>.
+        ///     Determines if a friendly error page should be returned for a <see cref="NancyContext"/>.
         /// </summary>
-        /// <param name="context">The <see cref="T:Nancy.NancyContext"/>.</param>
+        /// <param name="context">The <see cref="NancyContext"/>.</param>
         /// <returns><c>true</c> if an HTML page should be returned; otherwise, <c>false</c>.</returns>
         private bool ShouldReturnFriendlyErrorPage(NancyContext context)
         {
-
             var enumerable = context.Request.Headers.Accept;
 
-            var ranges = enumerable.OrderByDescending(o => o.Item2).Select(o => MediaRange.FromString(o.Item1)).ToList();
+            var ranges = enumerable.OrderByDescending(o => o.Item2).Select(o => new MediaRange(o.Item1)).ToList();
 
             foreach (var item in ranges)
             {
-
                 if (item.Matches(WebResources.ContentTypeApplicationJson) || item.Matches(WebResources.ContentTypeTextJson))
                 {
                     return false;
@@ -78,13 +69,9 @@
                 {
                     return true;
                 }
-
             }
 
             return true;
-
         }
-
     }
-
 }
